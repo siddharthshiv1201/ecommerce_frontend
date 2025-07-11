@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Register.css';
+import axios from 'axios';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -7,7 +8,7 @@ const Register = () => {
     email: '',
     password: ''
   });
-
+  const API_URL=import.meta.env.VITE_API_URL
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -16,12 +17,19 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data:', formData);
-    // Future: API call here
 
-    // Reset form
+    try {
+      const url=`${API_URL}/api/users/register`;
+      const res = await axios.post(url, formData);
+      console.log('Server response:', res.data);
+      alert('Registration successful!');
+    } catch (error) {
+      console.error('Error registering user:', error);
+      alert('Something went wrong!');
+    }
+
     setFormData({
       name: '',
       email: '',
@@ -31,8 +39,8 @@ const Register = () => {
 
   return (
     <div className="register-container">
-      <h2>Register</h2>
       <form onSubmit={handleSubmit} className="register-form">
+        <center><h2>Register</h2></center> 
         <input
           type="text"
           name="name"
