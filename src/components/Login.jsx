@@ -1,26 +1,26 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-
-const Register = () => {
+import { useContext } from "react";
+import { AppContext } from "../App";
+function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const {setUser}=useContext(AppContext);
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
+    remember: false,
   });
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [error, setError] = useState(""); // ⭐ error message ke liye
-
-  const API_URL = import.meta.env.VITE_API_URL;
 
   const togglePassword = () => setShowPassword(!showPassword);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -30,36 +30,34 @@ const Register = () => {
     console.log("Form Data:", formData);
 
     try {
-      const url = `${API_URL}/api/users/register`;
-      const res = await axios.post(url, formData);
-      console.log("Server response:", res.data);
+      const url=import.meta.env.VITE_API_URL;
+      const response = await axios.post(`${url}/api/users/login`, formData);
+      setUser({...response.data.userObj, token: response.data.token});
+      
+      console.log("Server Response:", response.data);
 
-      setIsRegistered(true);
-      setError(""); // ⭐ reset error on success
+      // Simulate login success:
+      setIsLoggedIn(true);
     } catch (error) {
-      console.error("Error registering user:", error);
-      setError("Something went wrong. Please try again."); // ⭐ set error
+      console.error("Login Error:", error);
     }
-
-    setFormData({
-      name: "",
-      email: "",
-      password: "",
-    });
   };
 
   return (
     <div
       className="
+      margin-0
+      flex
+      flex-col 
+      items-center 
+
         min-h-screen 
         flex 
         items-center 
         justify-center 
-        bg-gray-100
-        p-4
       "
     >
-      {!isRegistered ? (
+      {!isLoggedIn ? (
         <div
           className="
             bg-white 
@@ -74,49 +72,22 @@ const Register = () => {
             hover:scale-105
           "
         >
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-            Register Page
-          </h1>
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+            Login
+          </h2>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
-            {/* Name */}
-            <div>
-              <label className="block mb-1 text-gray-700 font-medium">
-                Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Enter your name"
-                className="
-                  w-full 
-                  px-4 
-                  py-3 
-                  rounded-lg 
-                  border 
-                  border-gray-300 
-                  focus:outline-none 
-                  focus:ring-2 
-                  focus:ring-purple-500
-                  transition
-                "
-                required
-              />
-            </div>
-
             {/* Email */}
             <div>
               <label className="block mb-1 text-gray-700 font-medium">
-                Email
+                Email or Username
               </label>
               <input
-                type="email"
+                type="text"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Enter your email"
+                placeholder="Enter your email or username"
                 className="
                   w-full 
                   px-4 
@@ -199,19 +170,46 @@ const Register = () => {
                 )}
               </button>
             </div>
-
-            {/* Error message */}
-            {error && (
-              <p className="text-red-600 text-center">{error}</p>
-            )}
-
             <p className="text-center mt-4 text-sm text-gray-600">
-              Already have an account?{" "}
-              <Link to="/login" className="text-indigo-600 hover:underline">
-                Login
-              </Link>
-            </p>
+          Don't have an account?{" "}
+          <Link to="/register" className="text-indigo-600 hover:underline">
+            Register
+          </Link>
+        </p>
 
+            {/* Remember Me & Forgot Password */}
+            <div className="flex items-center justify-between">
+              <label className="flex items-center space-x-2 text-gray-700">
+                <input
+                  type="checkbox"
+                  name="remember"
+                  checked={formData.remember}
+                  onChange={handleChange}
+                  className="
+                    rounded 
+                    text-purple-600 
+                    focus:ring-purple-500 
+                    transition 
+                    duration-300
+                  "
+                />
+                <span>Remember Me</span>
+              </label>
+              <Link
+                to="/forgot-password"
+                className="
+                  text-purple-600 
+                  hover:text-purple-800 
+                  text-sm 
+                  transition
+                "
+              >
+                Forgot Password?
+              </Link>
+              
+            </div>
+
+            {/* Login Button */}
             <button
               type="submit"
               className="
@@ -232,7 +230,7 @@ const Register = () => {
                 hover:scale-105
               "
             >
-              Register
+              Login
             </button>
           </form>
         </div>
@@ -268,13 +266,13 @@ const Register = () => {
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            Registration Successful!
+            Login Successful!
           </h2>
           <p className="text-gray-600">
-            Your account has been created successfully.
+            Welcome back! You are now logged in.
           </p>
           <Link
-            to="/login"
+            to="/"
             className="
               inline-block
               mt-6
@@ -293,12 +291,12 @@ const Register = () => {
               shadow-lg
             "
           >
-            Go to Login
+            Go to Dashboard
           </Link>
         </div>
       )}
     </div>
   );
-};
+}
 
-export default Register;
+export default Login;
