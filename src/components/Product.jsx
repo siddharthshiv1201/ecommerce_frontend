@@ -61,7 +61,7 @@ export default function Product() {
             className="bg-white border p-4 shadow-lg rounded-lg hover:shadow-xl transition-all duration-300"
           >
             <img
-              src={`${API_URL}/images/${product.imgUrl}`}
+              src={`/images/${product.imgUrl}`}
               alt={product.productName}
               className="w-full h-48 object-cover rounded mb-3"
             />
